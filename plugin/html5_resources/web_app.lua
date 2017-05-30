@@ -3,6 +3,8 @@
 
 local web_app
 
+local print_events = true
+
 local app_settings = stingray.Application.settings() or {}
 local web_app_url = app_settings.web_app_url or "stingray://app/main.html"
 if not stingray.Script.exists(web_app_url) then
@@ -23,8 +25,19 @@ function shutdown()
 	stingray.WebApp.destroy(web_app)
 end
 
-function update(dt)
-	stingray.WebApp.update(web_app, dt)
+if print_events then
+	function update(dt)
+		stingray.WebApp.update(web_app, dt)
+		local events = stingray.WebApp.consume_events()
+		for i=1,#events,1 do
+			print( 'name: ' .. events[i].name )
+			print( 'data: ' .. events[i].data )
+		end
+	end
+else
+	function update(dt)
+		stingray.WebApp.update(web_app, dt)
+	end
 end
 
 function render()

@@ -138,6 +138,7 @@ define(require => {
 											Vector2.create(0,0), 2,
 											Vector2.create(res[0],res[1]))
 		}
+		stingray.WebApp.emit("worldCreated", '{"value":true}');
     }
 
     /**

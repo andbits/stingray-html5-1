@@ -3,6 +3,7 @@
 #include "html5_api.h"
 #include "html5_web_browser.h"
 #include "html5_web_page.h"
+#include "html5_lua_events.h"
 
 #include <engine_plugin_api/plugin_api.h>
 #include <plugin_foundation/platform.h>
@@ -83,6 +84,7 @@ void setup_runtime_plugin(GetApiFunction get_engine_api)
 	load_lua_api(stingray::api::lua);
 
 	setup_web_page_database();
+	setup_lua_event_table();
 
 	// Initialize modules
 	browser::init();
@@ -165,6 +167,7 @@ void unload_plugin()
 	browser::shutdown();
 	unload_lua_api(stingray::api::lua);
 	shutdown_web_page_database();
+	shutdown_lua_event_table();
 	WebApp::shutdown();
 
 	unload_common_plugin_resources();

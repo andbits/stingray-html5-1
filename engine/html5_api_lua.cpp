@@ -1,6 +1,7 @@
 #include "html5_api.h"
 #include "html5_web_view.h"
 #include "html5_api_bindings.h"
+#include "html5_lua_events.h"
 
 #include <engine_plugin_api/plugin_api.h>
 #include <engine_plugin_api/c_api/c_api_window.h>
@@ -85,6 +86,28 @@ template <typename T> T get_object(lua_State *L, int i)
 	return (T)p;
 }
 
+__forceinline void push(lua_State *L, int n)
+{
+	stingray::api::lua->pushnumber(L, n);
+}
+
+__forceinline void push(lua_State *L, const char *s)
+{
+	stingray::api::lua->pushstring(L, s);
+}
+
+template<typename T>
+__forceinline void set_field(lua_State *L, const char *key, T value)
+{
+	push(L, value);
+	stingray::api::lua->setfield(L, -2, key);
+}
+
+__forceinline void push_new_table(lua_State* L)
+{
+	stingray::api::lua->createtable(L, 0, 0);
+}
+
 /* @adoc lua
 	@obj stingray.WebView : userdata
 	@grp core
@@ -166,6 +189,29 @@ void load_lua_api(LuaApi* env)
 		SyncEngine sync;
 		web_app->execute(update_call_script);
 		return 0;
+	});
+
+	/* @adoc lua
+	   @sig stingray.WebApp.consume_events() : {event_name, event_data}
+	   @des Consume all events available for processing.
+	*/
+	env->add_module_function("WebApp", "consume_events", [](lua_State* L)
+	{
+		LuaEventPtr event = event_handler()->consume_one();
+		push_new_table(L);
+		unsigned counter = 0;
+		while ( event ) {
+			// Specify the table index.
+			push( L, ++counter );
+			// Create a new table at the pushed index.
+			push_new_table(L);
+			// Now set the appropriate fields.
+			set_field(L, "name", event->name.c_str());
+			set_field(L, "data", event->data.c_str());
+			stingray::api::lua->settable( L, -3 );
+			event = event_handler()->consume_one();
+		}
+		return 1;
 	});
 
 	/* @adoc lua

@@ -1,6 +1,8 @@
+#include "shared_ptr.h"
 #include "html5_web_browser.h"
 #include "html5_web_view.h"
 #include "html5_api_bindings.h"
+#include "html5_lua_events.h"
 
 #include <include/cef_app.h>
 
@@ -18,6 +20,14 @@ void bind_api_web_app(CefRefPtr<CefV8Value> stingray_ns)
 	bind_api(ns, "sync", [](const CefV8ValueList&)
 	{
 		sync_signal();
+		return CefV8Value::CreateUndefined();
+	});
+
+	bind_api(ns, "emit", [](const CefV8ValueList& args)
+	{
+		const char *messageName = get_arg<const char*>( args, 0 );
+		const char *messageData = get_arg<const char*>( args, 1 );
+		event_handler()->add_event( messageName, messageData );
 		return CefV8Value::CreateUndefined();
 	});
 }
