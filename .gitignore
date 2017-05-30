@@ -77,7 +77,11 @@ make_args.txt
 # Visual Studio Code config
 .settings
 jsconfig.json
+.pshell_info
 .vs/
 
 # Webstorm project folder
 .idea/
+
+run.bat
+run_debug.bat
