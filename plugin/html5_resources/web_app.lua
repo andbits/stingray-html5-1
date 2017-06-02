@@ -3,7 +3,7 @@
 
 local web_app
 
-local print_events = true
+local test_events = false
 
 local app_settings = stingray.Application.settings() or {}
 local web_app_url = app_settings.web_app_url or "stingray://app/main.html"
@@ -25,13 +25,20 @@ function shutdown()
 	stingray.WebApp.destroy(web_app)
 end
 
-if print_events then
+if test_events then
 	function update(dt)
 		stingray.WebApp.update(web_app, dt)
 		local events = stingray.WebApp.consume_events()
 		for i=1,#events,1 do
 			print( 'name: ' .. events[i].name )
 			print( 'data: ' .. events[i].data )
+		end
+		index = stingray.Keyboard.button_id("x")
+		local x_pressed = index and stingray.Keyboard.pressed( index )
+		if x_pressed then
+			-- Send an event to the web app
+			--
+			stingray.WebApp.emit(web_app, "eventFire", '"sayhello"' )
 		end
 	end
 else

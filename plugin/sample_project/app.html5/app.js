@@ -159,6 +159,9 @@ define(require => {
         Camera.set_local_rotation(app.camera.instance, app.camera.unit, orientation);
 
         console.info('Camera created');
+		window.addEventListener("eventFire", function( e ) {
+			console.info( e.detail );
+		});
     }
 
     /**

@@ -170,6 +170,39 @@ void load_lua_api(LuaApi* env)
 	});
 
 	/* @adoc lua
+	   @sig stingray.WebApp.emit() : {event_name, event_data}
+	   @des Emit an event to the web app.
+	*/
+	env->add_module_function("WebApp", "emit", [](lua_State* L)
+	{
+		TempAllocator tempalloc( stingray::api::allocator_api );
+
+		if (!web_apps)
+			return 0;
+
+		CefRefPtr<LuaWebApp> web_app = get_web_app(L, 1);
+		if (!web_app->is_ready())
+			return 0;
+
+		const char* name = stingray::api::lua->tolstring(L, 2, nullptr);
+		const char* data = stingray::api::lua->tolstring(L, 3, nullptr);
+
+		if ( web_app && name && data ) {
+			unsigned len =  (unsigned)strlen(data) +
+							(unsigned)strlen(name) + 128;
+			const char *sync = "stingray.WebApp.sync();";
+			const char *dispatch =
+				"window.dispatchEvent(new CustomEvent('%s',{detail:%s}));%s";
+			char *event = (char *)tempalloc.allocate( len );
+			if ( snprintf( event, len, dispatch, name, data, sync ) > 0 ) {
+				web_app->execute( event );
+			}
+			return 1;
+		}
+		return 0;
+	});
+
+	/* @adoc lua
 	   @sig stingray.WebApp.update(dt: number) : nil
 	   @des Update and synchronize the web app with the engine update loop.
 	*/
@@ -212,6 +245,31 @@ void load_lua_api(LuaApi* env)
 			event = event_handler()->consume_one();
 		}
 		return 1;
+	});
+
+	/* @adoc lua
+	   @sig stingray.WebView.emit() : {event_name, event_data}
+	   @des Emit an event to the WebView.
+	*/
+	env->add_module_function("WebView", "emit", [](lua_State* L)
+	{
+		TempAllocator tempalloc( stingray::api::allocator_api );
+		CefRefPtr<WebView> web_view = get_web_view(L, 1);
+		const char* name = stingray::api::lua->tolstring(L, 2, nullptr);
+		const char* data = stingray::api::lua->tolstring(L, 3, nullptr);
+
+		if ( web_view && name && data ) {
+			unsigned len =  (unsigned)strlen(data) +
+							(unsigned)strlen(name) + 128;
+			const char *dispatch =
+				"window.dispatchEvent(new CustomEvent('%s',{detail:%s})";
+			char *event = (char *)tempalloc.allocate( len );
+			if ( snprintf( event, len, dispatch, name, data ) > 0 ) {
+				web_view->execute( event );
+			}
+			return 1;
+		}
+		return 0;
 	});
 
 	/* @adoc lua
