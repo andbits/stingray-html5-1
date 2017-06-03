@@ -262,7 +262,7 @@ void load_lua_api(LuaApi* env)
 			unsigned len =  (unsigned)strlen(data) +
 							(unsigned)strlen(name) + 128;
 			const char *dispatch =
-				"window.dispatchEvent(new CustomEvent('%s',{detail:%s})";
+				"window.dispatchEvent(new CustomEvent('%s',{detail:%s}));";
 			char *event = (char *)tempalloc.allocate( len );
 			if ( snprintf( event, len, dispatch, name, data ) > 0 ) {
 				web_view->execute( event );
