@@ -341,6 +341,23 @@ void load_lua_api(LuaApi* env)
 	});
 
 	/* @adoc lua
+	   @sig stingray.WebView.set_context_menu_state(self:stingray.WebView, state:bool)
+	   @arg stingray.WebView	Target web view
+	   @arg state		State of the context menu
+	   @ret nil
+	   @des Sets the context menu state
+	*/
+	env->add_module_function("WebView", "set_context_menu_state", [](lua_State *L)
+	{
+		CefRefPtr<WebView> web_view = get_web_view(L,1);
+		if ( web_view ) {
+			int state = stingray::api::lua->toboolean(L, 2);
+			web_view->set_context_menu_state( state != 0 );
+		}
+		return 0;
+	});
+
+	/* @adoc lua
 	   @sig stingray.WebView.open_dev_tool(self:stingray.WebView) : nil
 	   @arg stingray.WebView	Target web view
 	   @des Opens the view dev tools.

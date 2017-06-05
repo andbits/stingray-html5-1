@@ -33,6 +33,7 @@ public:
 	explicit WebView(WindowPtr window, MaterialPtr material);
 	virtual ~WebView();
 
+	void set_context_menu_state( bool );
 	void load_page(const char* new_url);
 	void open_dev_tools(const CefPoint& pt = CefPoint()) const;
 	void execute(const char* script_code) const;
@@ -77,6 +78,8 @@ protected: // CefClient
 	CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE { return this; }
 
 	bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefProcessId source_process, CefRefPtr<CefProcessMessage> message) OVERRIDE;
+
+	void OnBeforeContextMenu( CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) OVERRIDE;
 
 protected: // CefLifeSpanHandler
 
@@ -129,6 +132,8 @@ private:
 	uint32 _modifiers;
 	int _cursor_pos[2];
 	int _resolution[2];
+	bool _context_menu;
+
 	IMPLEMENT_REFCOUNTING(WebView)
 };
 

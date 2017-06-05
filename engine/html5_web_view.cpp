@@ -29,6 +29,7 @@ WebView::WebView(WindowPtr window, MaterialPtr material)
 	, _texture_buffer_size(0)
 	, _current_url()
 	, _function_handlers()
+	, _context_menu(true)
 	, _modifiers(EVENTFLAG_NONE)
 {
 	CefMessageRouterConfig config;
@@ -50,6 +51,11 @@ WebView::WebView(WindowPtr window, MaterialPtr material)
 WebView::~WebView()
 {
 	close_browser();
+}
+
+void WebView::set_context_menu_state( bool v )
+{
+	_context_menu = v;
 }
 
 WindowPtr WebView::get_window_or_default() const
@@ -347,6 +353,17 @@ void WebView::on_resize(void* obj, WindowPtr window, int x, int y, int width, in
 void WebView::OnRenderViewReady(CefRefPtr<CefBrowser>)
 {
 	_message_router->AddHandler(this, false);
+}
+
+void WebView::OnBeforeContextMenu(
+	CefRefPtr<CefBrowser> browser,
+	CefRefPtr<CefFrame> frame,
+	CefRefPtr<CefContextMenuParams> params,
+	CefRefPtr<CefMenuModel> model)
+{
+	if ( !_context_menu ) {
+		model->Clear();
+	}
 }
 
 void WebView::OnBeforeClose(CefRefPtr<CefBrowser> browser)
